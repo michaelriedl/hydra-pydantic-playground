@@ -1,0 +1,9 @@
+# Top-level Hydra configuration for MNIST MLP training.
+#
+# Usage:
+#   python scripts/train.py
+#   python scripts/train.py model=mlp model.dropout_rate=0.2
+
+defaults:
+  - model: mlp
+  - _self_

@@ -1,0 +1,18 @@
+# MLP model configuration.
+# Validated at instantiation time by the Pydantic MLPConfig class.
+#
+# Override from the command line:
+#   python scripts/train.py model.dropout_rate=0.2 model.hidden_dims='[512, 256, 128]'
+
+_target_: src.models.mlp.MLPConfig
+_convert_: all
+
+in_features: 784
+hidden_dims:
+  - 256
+  - 128
+out_features: 10
+activation: relu
+dropout_rate: 0.0
+use_batch_norm: false
+bias: true
