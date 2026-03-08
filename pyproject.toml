@@ -4,4 +4,82 @@ version = "0.1.0"
 description = "A playground for using Hydra with Pydantic."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["hydra-core", "pydantic"]
+dependencies = ["hydra-core", "pydantic", "torch", "torchvision"]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.ruff]
+line-length = 100
+indent-width = 4
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+known-local-folder = ["."]
+length-sort = true
+from-first = false
+force-single-line = false
+combine-as-imports = true
+force-sort-within-sections = false
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "B",
+    "I",
+    "N",
+    "UP",
+    "PT",
+    "RUF",
+] # Enable all rules by default, then configure specific rule sets
+ignore = [
+    "RUF022", # Ignore __all__ sorting check b/c can't be auto-fixed at this time
+    "UP006",  # Ignore f-string docstring check b/c it produces false positives in some cases
+    "UP007",  # Ignore f-string comment check b/c it produces false positives in some
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
