@@ -1,0 +1,7 @@
+[project]
+name = "hydra-pydantic-playground"
+version = "0.1.0"
+description = "A playground for using Hydra with Pydantic."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["hydra-core", "pydantic"]
