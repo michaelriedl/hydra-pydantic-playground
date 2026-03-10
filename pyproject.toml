@@ -4,7 +4,13 @@ version = "0.1.0"
 description = "A playground for using Hydra with Pydantic."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["hydra-core", "pydantic", "torch", "torchvision"]
+dependencies = [
+    "hydra-core",
+    "lightning>=2.6.1",
+    "pydantic",
+    "torch",
+    "torchvision",
+]
 
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
