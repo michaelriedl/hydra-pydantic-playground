@@ -1,8 +1,7 @@
 """Trainer configuration with Pydantic validation.
 
-Provides :class:`TrainerConfig`, the shared configuration for hardware,
-loop control, checkpointing, and logging that is consumed by
-:class:`~src.trainer.base.BaseTrainer`.
+Provides TrainerConfig, the shared configuration for hardware, loop control,
+checkpointing, and logging that is consumed by BaseTrainer.
 """
 
 from __future__ import annotations
@@ -27,32 +26,32 @@ PrecisionType = Literal[
 class TrainerConfig(BaseModel):
     """Shared configuration for hardware, loop control, checkpointing, and logging.
 
-    This config is consumed by :class:`~src.trainer.base.BaseTrainer` and
-    covers everything that is common to both pre-training and fine-tuning
-    regimes.  All fields are validated at construction time via Pydantic.
+    This config is consumed by BaseTrainer and covers everything that is
+    common to both pre-training and fine-tuning regimes. All fields are
+    validated at construction time via Pydantic.
 
     Attributes:
         accelerator: Hardware accelerator backend.
-        devices: Number of devices to use, or ``"auto"`` for automatic
+        devices: Number of devices to use, or "auto" for automatic
             selection.
         strategy: Distributed training strategy.
         precision: Numerical precision for training.
         num_workers: Number of DataLoader worker processes.
-        max_epochs: Maximum number of training epochs. ``None`` means
+        max_epochs: Maximum number of training epochs. None means
             unlimited (train until early stopping or manual halt).
         batch_size: Training batch size per device.
         val_batch_size: Validation batch size per device.
         train_ratio: Fraction of the dataset used for training.
-            Must be in ``(0, 1)``.
+            Must be in (0, 1).
         grad_accum_steps: Number of batches to accumulate gradients over
             before performing an optimiser step.
         gradient_clip_val: Maximum gradient norm for clipping.
-            ``None`` disables clipping.
-        val_frequency: Run a validation epoch every *N* training epochs.
+            None disables clipping.
+        val_frequency: Run a validation epoch every N training epochs.
         checkpoint_dir: Directory to save checkpoints to.
-        checkpoint_frequency: Save a checkpoint every *N* epochs.
-        log_every_n_steps: Log training metrics every *N* optimiser steps.
-        seed: Random seed for reproducibility.  ``None`` disables seeding.
+        checkpoint_frequency: Save a checkpoint every N epochs.
+        log_every_n_steps: Log training metrics every N optimiser steps.
+        seed: Random seed for reproducibility. None disables seeding.
 
     Examples:
         >>> config = TrainerConfig()
@@ -72,7 +71,7 @@ class TrainerConfig(BaseModel):
 
     model_config = {"frozen": True, "extra": "forbid"}
 
-    # Hardware / Fabric -------------------------------------------------------
+    # Hardware / Fabric
     accelerator: AcceleratorType = Field(
         default="auto",
         description="Hardware accelerator backend.",
@@ -95,7 +94,7 @@ class TrainerConfig(BaseModel):
         description="Number of DataLoader worker processes.",
     )
 
-    # Training loop -----------------------------------------------------------
+    # Training loop
     max_epochs: int | None = Field(
         default=100,
         gt=0,
@@ -128,14 +127,14 @@ class TrainerConfig(BaseModel):
         description="Max gradient norm for clipping. None disables clipping.",
     )
 
-    # Validation --------------------------------------------------------------
+    # Validation
     val_frequency: int = Field(
         default=1,
         ge=1,
         description="Run validation every N training epochs.",
     )
 
-    # Checkpointing -----------------------------------------------------------
+    # Checkpointing
     checkpoint_dir: str = Field(
         default="./checkpoints",
         min_length=1,
@@ -147,31 +146,31 @@ class TrainerConfig(BaseModel):
         description="Save a checkpoint every N epochs.",
     )
 
-    # Logging -----------------------------------------------------------------
+    # Logging
     log_every_n_steps: int = Field(
         default=10,
         ge=1,
         description="Log training metrics every N optimiser steps.",
     )
 
-    # Reproducibility ---------------------------------------------------------
+    # Reproducibility
     seed: int | None = Field(
         default=None,
         ge=0,
         description="Random seed for reproducibility. None disables seeding.",
     )
 
-    # Cross-field validators --------------------------------------------------
+    # Cross-field validators
 
     @model_validator(mode="after")
     def _validate_devices(self) -> TrainerConfig:
-        """Ensure ``devices`` is either ``"auto"`` or a positive integer.
+        """Ensure devices is either "auto" or a positive integer.
 
         Returns:
             The validated configuration instance.
 
         Raises:
-            ValueError: If ``devices`` is an integer ≤ 0.
+            ValueError: If devices is an integer <= 0.
         """
         if isinstance(self.devices, int) and self.devices <= 0:
             raise ValueError(f"devices must be a positive integer or 'auto', got {self.devices}")

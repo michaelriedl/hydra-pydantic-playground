@@ -1,7 +1,7 @@
 """Base trainer built on Lightning Fabric.
 
-This module contains the :class:`BaseTrainer` abstract class that defines
-the training loop skeleton. Subclasses implement what changes between
+This module contains the BaseTrainer abstract class that defines the
+training loop skeleton. Subclasses implement what changes between
 training regimes (model, data, per-step logic) while the base provides
 device placement, the epoch / validation loop, gradient accumulation,
 checkpointing, metrics logging, and progress display.
@@ -30,7 +30,7 @@ class BaseTrainer(ABC):
     Subclasses fill in the model, data, optimizer, and per-batch logic while
     the base class handles everything else.
 
-    The epoch loop executed by :meth:`fit` is::
+    The epoch loop executed by fit() is:
 
         for epoch in range(max_epochs):
             _train_loop()      # calls training_step() per batch
@@ -39,20 +39,20 @@ class BaseTrainer(ABC):
             save checkpoint    # if due
 
     Subclasses must implement:
-        create_model(): Return an ``nn.Module`` (not yet moved to device).
-        create_dataloaders(): Return ``(train_loader, val_loader)``.
-        create_optimizer(model): Return ``(optimizer, scheduler | None)``.
+        create_model(): Return an nn.Module (not yet moved to device).
+        create_dataloaders(): Return (train_loader, val_loader).
+        create_optimizer(model): Return (optimizer, scheduler | None).
         training_step(model, batch, batch_idx): Forward pass for one training batch.
-            Must return a ``dict`` with at least a ``"loss"`` key.
-            Do not call ``backward()`` here.
+            Must return a dict with at least a "loss" key.
+            Do not call backward() here.
         validation_step(model, batch, batch_idx): Forward pass for one validation batch.
-            Returns a ``dict`` of scalar tensors that are averaged over the epoch
-            and logged with a ``"val_"`` prefix.
+            Returns a dict of scalar tensors that are averaged over the epoch
+            and logged with a "val_" prefix.
 
     Note:
-        Call :meth:`_build_scheduler` inside ``create_optimizer`` to create an
-        LR scheduler from a string name and kwargs, keeping scheduler creation
-        consistent across subclasses.
+        Call _build_scheduler inside create_optimizer to create an LR scheduler
+        from a string name and kwargs, keeping scheduler creation consistent
+        across subclasses.
     """
 
     def __init__(
@@ -79,7 +79,7 @@ class BaseTrainer(ABC):
         self.optimizer: Optimizer | None = None
         self.scheduler: LRScheduler | None = None
 
-    # Abstract interface — subclasses must implement these
+    # Abstract interface -- subclasses must implement these
 
     @abstractmethod
     def create_model(self) -> nn.Module:
@@ -87,14 +87,14 @@ class BaseTrainer(ABC):
 
     @abstractmethod
     def create_dataloaders(self) -> tuple[DataLoader, DataLoader]:
-        """Return ``(train_loader, val_loader)``."""
+        """Return (train_loader, val_loader)."""
 
     @abstractmethod
     def create_optimizer(
         self,
         model: nn.Module,
     ) -> tuple[Optimizer, LRScheduler | None]:
-        """Return ``(optimizer, scheduler)``; scheduler may be ``None``."""
+        """Return (optimizer, scheduler); scheduler may be None."""
 
     @abstractmethod
     def training_step(
@@ -111,8 +111,8 @@ class BaseTrainer(ABC):
             batch_idx: Index of the current batch within the epoch.
 
         Returns:
-            A ``dict`` containing at least a ``"loss"`` key.  Additional keys
-            are logged as training metrics.  Do **not** call ``backward()``.
+            A dict containing at least a "loss" key. Additional keys
+            are logged as training metrics. Do not call backward().
         """
 
     @abstractmethod
@@ -125,14 +125,14 @@ class BaseTrainer(ABC):
         """Forward pass for a single validation batch.
 
         Args:
-            model: The Fabric-wrapped model in eval mode (``torch.no_grad``
+            model: The Fabric-wrapped model in eval mode (torch.no_grad
                 context is already active).
             batch: The batch yielded by the val DataLoader.
             batch_idx: Index of the current batch within the epoch.
 
         Returns:
-            A ``dict`` of scalar tensors.  Values are averaged across the
-            epoch and logged with a ``"val_"`` prefix.
+            A dict of scalar tensors. Values are averaged across the
+            epoch and logged with a "val_" prefix.
         """
 
     # Main entry point
@@ -142,15 +142,15 @@ class BaseTrainer(ABC):
 
         Args:
             ckpt_path: Optional path to a Fabric checkpoint to resume from.
-                When provided, model, optimizer, scheduler, ``current_epoch``,
-                and ``global_step`` are all restored before training begins.
+                When provided, model, optimizer, scheduler, current_epoch,
+                and global_step are all restored before training begins.
         """
         self._ensure_launched()
 
         if self.config.seed is not None:
             self.fabric.seed_everything(self.config.seed)
 
-        # Instantiate objects — model is created on the target device/dtype
+        # Instantiate objects -- model is created on the target device/dtype
         with self.fabric.init_module():
             model = self.create_model()
 
@@ -178,7 +178,7 @@ class BaseTrainer(ABC):
 
         self.fabric.call("on_fit_start", trainer=self)
 
-        # ---- Epoch loop ----
+        # Epoch loop
         while not self.should_stop:
             self._train_loop(model, optimizer, train_loader)
 
@@ -269,8 +269,8 @@ class BaseTrainer(ABC):
         """Run one validation epoch.
 
         Returns:
-            Averaged epoch metrics with a ``"val_"`` prefix, e.g.
-            ``{"val_loss": tensor(0.42), "val_acc": tensor(0.87)}``.
+            Averaged epoch metrics with a "val_" prefix, e.g.
+            {"val_loss": tensor(0.42), "val_acc": tensor(0.87)}.
         """
         model.eval()
         self.fabric.call("on_validation_epoch_start", trainer=self)
@@ -346,14 +346,14 @@ class BaseTrainer(ABC):
     # Helpers
 
     def _ensure_launched(self) -> None:
-        """Call ``fabric.launch()`` at most once, even across fit/evaluate."""
+        """Call fabric.launch() at most once, even across fit/evaluate."""
         if not self._is_launched:
             self.fabric.launch()
             self._is_launched = True
 
     @property
     def _should_validate(self) -> bool:
-        """``True`` when the current epoch should trigger a validation run."""
+        """True when the current epoch should trigger a validation run."""
         return self.current_epoch % self.config.val_frequency == 0
 
     def _step_scheduler(
@@ -363,9 +363,9 @@ class BaseTrainer(ABC):
     ) -> None:
         """Step the LR scheduler after each epoch.
 
-        ``ReduceLROnPlateau`` requires a monitored scalar, which is taken from
-        ``val_metrics["val_loss"]``.  If validation was skipped this epoch
-        (because ``val_frequency > 1``), the plateau scheduler is not stepped.
+        ReduceLROnPlateau requires a monitored scalar, which is taken from
+        val_metrics["val_loss"]. If validation was skipped this epoch
+        (because val_frequency > 1), the plateau scheduler is not stepped.
         """
         if scheduler is None:
             return
@@ -384,18 +384,18 @@ class BaseTrainer(ABC):
     ) -> LRScheduler | None:
         """Build an LR scheduler by name.
 
-        Convenience helper for subclasses to call inside ``create_optimizer``.
+        Convenience helper for subclasses to call inside create_optimizer.
 
         Args:
             optimizer: The optimiser to attach the scheduler to.
-            scheduler_type: One of ``"cosine"``, ``"step"``,
-                ``"reduce_on_plateau"``, ``"linear"``, or ``None``.
+            scheduler_type: One of "cosine", "step", "reduce_on_plateau",
+                "linear", or None.
             scheduler_kwargs: Keyword arguments forwarded to the scheduler
-                constructor.  For ``"cosine"``, ``T_max`` defaults to
-                ``config.max_epochs`` when not provided.
+                constructor. For "cosine", T_max defaults to
+                config.max_epochs when not provided.
 
         Returns:
-            A configured ``LRScheduler`` instance, or ``None``.
+            A configured LRScheduler instance, or None.
         """
         if scheduler_type is None:
             return None

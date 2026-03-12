@@ -45,12 +45,12 @@ class MLPConfig(BaseModel):
             one element.
         out_features: Number of output features from the final layer.
         activation: Activation function applied after each hidden layer.
-            Defaults to ``"relu"``.
+            Defaults to "relu".
         dropout_rate: Dropout probability applied after each hidden layer
-            activation. Must be in ``[0, 1)``. Defaults to ``0.0`` (no dropout).
+            activation. Must be in [0, 1). Defaults to 0.0 (no dropout).
         use_batch_norm: Whether to apply batch normalization before the
-            activation in each hidden layer. Defaults to ``False``.
-        bias: Whether linear layers include a bias term. Defaults to ``True``.
+            activation in each hidden layer. Defaults to False.
+        bias: Whether linear layers include a bias term. Defaults to True.
 
     Examples:
         >>> config = MLPConfig(in_features=784, hidden_dims=[256, 128], out_features=10)
@@ -97,7 +97,7 @@ class MLPConfig(BaseModel):
 
     @model_validator(mode="after")
     def _validate_hidden_dims_positive(self) -> MLPConfig:
-        """Ensure every element in ``hidden_dims`` is a positive integer.
+        """Ensure every element in hidden_dims is a positive integer.
 
         Returns:
             The validated configuration instance.
@@ -112,20 +112,19 @@ class MLPConfig(BaseModel):
 
 
 class MLP(nn.Module):
-    """Multi-Layer Perceptron built from an :class:`MLPConfig`.
+    """Multi-Layer Perceptron built from an MLPConfig.
 
     Constructs a feedforward neural network with configurable hidden layers,
     activation functions, dropout, and batch normalization.
 
     The architecture for each hidden layer follows:
-        ``Linear -> [BatchNorm] -> Activation -> [Dropout]``
+        Linear -> [BatchNorm] -> Activation -> [Dropout]
 
-    The final output layer is a plain ``Linear`` projection with no activation
+    The final output layer is a plain Linear projection with no activation
     or regularization.
 
     Args:
-        config: A validated :class:`MLPConfig` instance defining the
-            architecture.
+        config: A validated MLPConfig instance defining the architecture.
 
     Examples:
         >>> config = MLPConfig(in_features=784, hidden_dims=[256, 128], out_features=10)
@@ -162,10 +161,10 @@ class MLP(nn.Module):
         """Perform the forward pass through the MLP.
 
         Args:
-            x: Input tensor of shape ``(batch_size, in_features)``.
+            x: Input tensor of shape (batch_size, in_features).
 
         Returns:
-            Output tensor of shape ``(batch_size, out_features)``. Raw logits
+            Output tensor of shape (batch_size, out_features). Raw logits
             with no activation applied.
         """
         h = self.hidden_layers(x)
