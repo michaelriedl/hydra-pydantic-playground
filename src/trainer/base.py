@@ -160,8 +160,20 @@ class BaseTrainer(ABC):
         # Fabric: wrap model + optimizer for device placement, distributed,
         # and mixed-precision, then wrap DataLoaders for distributed samplers.
         model, optimizer = self.fabric.setup(model, optimizer)
+        model: L.fabric.wrappers._FabricModule
+        optimizer: L.fabric.wrappers._FabricOptimizer
         train_loader = self.fabric.setup_dataloaders(train_loader)
         val_loader = self.fabric.setup_dataloaders(val_loader)
+
+        # Check that the loaders are a DataLoader after setup
+        if not isinstance(train_loader, DataLoader):
+            raise TypeError(
+                f"Expected train_loader to be a DataLoader after setup, got {type(train_loader)}"
+            )
+        if not isinstance(val_loader, DataLoader):
+            raise TypeError(
+                f"Expected val_loader to be a DataLoader after setup, got {type(val_loader)}"
+            )
 
         # Expose training objects on self so callbacks can access them.
         self.model = model
@@ -209,8 +221,8 @@ class BaseTrainer(ABC):
 
     def _train_loop(
         self,
-        model: nn.Module,
-        optimizer: Optimizer,
+        model: L.fabric.wrappers._FabricModule,
+        optimizer: L.fabric.wrappers._FabricOptimizer,
         train_loader: DataLoader,
     ) -> None:
         """Run one training epoch."""

@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff", "ty"]
 
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
@@ -21,6 +21,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["src*"]
+
+[tool.ty.src]
+include = ["src/"]
 
 [tool.ruff]
 line-length = 100
